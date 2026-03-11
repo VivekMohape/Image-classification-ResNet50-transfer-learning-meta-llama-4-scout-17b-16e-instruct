@@ -10,6 +10,18 @@ Since the original dataset is large, a **balanced subset dataset was created by 
 
 The models were implemented using **PyTorch** and trained using **transfer learning with pretrained convolutional neural networks**.
 
+## Approach
+
+The approach followed in this project includes the following steps:
+
+1. Dataset cleaning and preprocessing to remove corrupt images.
+2. Creation of a balanced subset dataset with 500 images per class.
+3. Application of image preprocessing and augmentation techniques.
+4. Training deep learning models using transfer learning.
+5. Evaluating model performance using validation accuracy and confusion matrix.
+6. Comparing multiple architectures to determine the best performing model.
+
+
 Two architectures were evaluated:
 
 * ResNet50
