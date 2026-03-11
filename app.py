@@ -3,8 +3,12 @@ import torch
 import torchvision
 from torchvision import transforms
 from PIL import Image
+import pandas as pd
 
-# class labels
+st.set_page_config(page_title="Indian Clothing Classifier", layout="centered")
+
+
+# CLASS LABELS
 classes = [
 'BLOUSE','DHOTI PANTS or SALWAR','DUPATTA','GOWNS',
 'KURTA MENS','LEGGINGS','LEHENGA','MENS MOJARI',
@@ -14,7 +18,10 @@ classes = [
 
 device = torch.device("cpu")
 
-# image preprocessing
+
+# IMAGE TRANSFORM
+
+
 transform = transforms.Compose([
     transforms.Resize((224,224)),
     transforms.ToTensor(),
@@ -24,7 +31,8 @@ transform = transforms.Compose([
     )
 ])
 
-# load EfficientNet model
+
+@st.cache_resource
 def load_model():
 
     model = torchvision.models.efficientnet_b0()
@@ -44,12 +52,23 @@ def load_model():
 
 model = load_model()
 
-st.title("Indian Clothing Classifier")
 
-st.write("Upload an image of Indian clothing.")
+# UI HEADER
+
+
+st.title("Indian Clothing Image Classifier")
+
+st.write(
+"This app classifies Indian clothing items using a deep learning model "
+"trained on the IndoFashion dataset."
+)
+
+
+# IMAGE UPLOAD
+
 
 uploaded_file = st.file_uploader(
-    "Upload Image",
+    "Upload an image",
     type=["jpg","jpeg","png"]
 )
 
@@ -61,19 +80,52 @@ if uploaded_file is not None:
 
     img = transform(image).unsqueeze(0)
 
+
+    # MODEL PREDICTION
+
+
     with torch.no_grad():
 
         outputs = model(img)
 
-        probs = torch.nn.functional.softmax(outputs, dim=1)
+        probabilities = torch.nn.functional.softmax(outputs, dim=1)[0]
 
-        pred = torch.argmax(probs,1).item()
 
-    st.subheader("Prediction")
-    st.write(classes[pred])
+    # TOP 3 PREDICTIONS
 
-    st.subheader("Confidence")
 
-    confidence = probs[0][pred].item()
+    top3_prob, top3_idx = torch.topk(probabilities, 3)
 
-    st.write(f"{confidence*100:.2f}%")
+    st.subheader("Top Predictions")
+
+    results = []
+
+    for prob, idx in zip(top3_prob, top3_idx):
+
+        label = classes[idx]
+
+        confidence = prob.item() * 100
+
+        results.append({
+            "Class": label,
+            "Confidence (%)": round(confidence,2)
+        })
+
+    df = pd.DataFrame(results)
+
+    st.table(df)
+
+
+    # PROBABILITY BAR CHART
+
+
+    st.subheader("Prediction Confidence")
+
+    chart_data = pd.DataFrame({
+        "Class": classes,
+        "Probability": probabilities.numpy()
+    })
+
+    chart_data = chart_data.sort_values("Probability", ascending=False)
+
+    st.bar_chart(chart_data.set_index("Class"))
