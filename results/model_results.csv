@@ -1,0 +1,3 @@
+Model,Best Accuracy
+ResNet50,0.86
+EfficientNet,0.8573333333333333
