@@ -1,6 +1,6 @@
 # Image-classification-ResNet50-transfer-learning-meta-llama-4-scout-17b-16e-instruct
 
-# Indian Clothing Image Classification (IndoFashion)
+# Indian Clothing Image Classification 
 
 ## Overview
 
