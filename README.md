@@ -1,6 +1,6 @@
 # Clothing Image Classification using transfer learning and LLM
 
-## Overview
+
 
 This project implements an **image classification system for Indian ethnic clothing** using the **IndoFashion dataset**.
 
