@@ -9,7 +9,6 @@ from groq import Groq
 import os
 
 
-
 st.set_page_config(
     page_title="Indian Clothing Classifier",
     page_icon="👗",
@@ -22,7 +21,6 @@ st.write(
 "This app predicts the category of Indian clothing using either a "
 "deep learning model (EfficientNet) or a Vision LLM."
 )
-
 
 
 model_choice = st.selectbox(
@@ -62,17 +60,11 @@ transform = transforms.Compose([
 ])
 
 
-
 MODEL_PATH = os.path.join("Model", "best_EfficientNet.pth")
-
 
 
 @st.cache_resource
 def load_model():
-
-    if not os.path.exists(MODEL_PATH):
-        st.error("Model file not found. Please check repository structure.")
-        st.stop()
 
     model = torchvision.models.efficientnet_b0()
 
@@ -90,8 +82,6 @@ def load_model():
     return model
 
 
-
-
 uploaded_file = st.file_uploader(
     "Upload an image of Indian clothing",
     type=["jpg","jpeg","png"]
@@ -106,8 +96,6 @@ if uploaded_file is not None:
         caption="Uploaded Image",
         use_column_width=True
     )
-
-
 
     if model_choice == "EfficientNet (CNN)":
 
@@ -158,9 +146,11 @@ if uploaded_file is not None:
 
         st.info("Using Llama Vision model via Groq API")
 
+        image_bytes = uploaded_file.getvalue()
+
         encoded = base64.b64encode(
-            uploaded_file.read()
-        ).decode()
+            image_bytes
+        ).decode("utf-8")
 
         image_url = f"data:image/jpeg;base64,{encoded}"
 
@@ -213,7 +203,7 @@ Do not explain.
 
             temperature=0,
             top_p=0.1,
-            max_completion_tokens=5
+            max_completion_tokens=10
         )
 
         prediction = completion.choices[0].message.content.strip()
