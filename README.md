@@ -44,11 +44,11 @@ This allows quick verification of the classification system without downloading 
 
 Pipeline implemented in this project:
 
-1.  Dataset cleaning and subset creation\
-2.  Image preprocessing and augmentation\
-3.  Transfer learning with pretrained CNNs\
-4.  Model training and validation\
-5.  Performance evaluation\
+1.  Dataset cleaning and subset creation
+2.  Image preprocessing and augmentation
+3.  Transfer learning with pretrained CNNs
+4.  Model training and validation
+5.  Performance evaluation
 6.  Deployment using Streamlit
 
 Two deep learning models were trained and compared:
