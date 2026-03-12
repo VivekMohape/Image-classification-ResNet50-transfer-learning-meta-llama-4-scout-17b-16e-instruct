@@ -1,4 +1,4 @@
-# Clothing Image Classification using Transfer Learning and  Meta Vision
+# Clothing Image Classification using Transfer Learning and  Vision LLM
 
 🔗 **Live Demo**\
 https://img-classifier-efficientnet-llama4-scout.streamlit.app/
