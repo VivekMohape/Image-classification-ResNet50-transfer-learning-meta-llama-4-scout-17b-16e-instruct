@@ -17,6 +17,28 @@ The models were implemented using **PyTorch** and trained using
 **transfer learning with pretrained CNN architectures**.
 
 ------------------------------------------------------------------------
+## Test Images
+
+To help reviewers quickly test the model, a set of sample images is provided.
+
+Download test images here:
+
+🔗 https://drive.google.com/drive/folders/1Di0b2wPs-KbediLzKNYBkIQrrqfJ-81n?usp=sharing
+
+You can upload these images directly in the Streamlit app to evaluate the model predictions.
+
+The test folder contains example images from multiple categories such as:
+
+- Saree
+- Kurta
+- Lehenga
+- Mojari
+- Dupatta
+- Sherwani
+- Palazzo
+
+This allows quick verification of the classification system without downloading the full IndoFashion dataset.
+------------------------------------------------------------------------
 
 # Project Overview
 
