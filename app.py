@@ -4,10 +4,10 @@ import torchvision
 from torchvision import transforms
 from PIL import Image
 import pandas as pd
+import os
 
 
 # PAGE CONFIG
-
 
 st.set_page_config(
     page_title="Indian Clothing Classifier",
@@ -24,7 +24,6 @@ st.write(
 
 
 # CLASS LABELS
-
 
 classes = [
 'BLOUSE',
@@ -49,7 +48,6 @@ device = torch.device("cpu")
 
 # IMAGE TRANSFORM
 
-
 transform = transforms.Compose([
     transforms.Resize((224,224)),
     transforms.ToTensor(),
@@ -62,25 +60,32 @@ transform = transforms.Compose([
 
 # LOAD MODEL
 
-
 @st.cache_resource
 def load_model():
 
-    model = torchvision.models.efficientnet_b0()
+    model_path = "Model/best_EfficientNet.pth"
 
-    model.classifier[1] = torch.nn.Linear(
-        model.classifier[1].in_features,
-        len(classes)
-    )
+    if not os.path.exists(model_path):
+        st.error("Model file not found. Please check the repository structure.")
+        st.stop()
 
-    model.load_state_dict(
-        torch.load(
-            "models/best_EfficientNet.pth",
-            map_location=device
+    with st.spinner("Loading model..."):
+
+        model = torchvision.models.efficientnet_b0()
+
+        model.classifier[1] = torch.nn.Linear(
+            model.classifier[1].in_features,
+            len(classes)
         )
-    )
 
-    model.eval()
+        model.load_state_dict(
+            torch.load(
+                model_path,
+                map_location=device
+            )
+        )
+
+        model.eval()
 
     return model
 
@@ -89,7 +94,6 @@ model = load_model()
 
 
 # IMAGE UPLOADER
-
 
 uploaded_file = st.file_uploader(
     "Upload an image of Indian clothing",
@@ -108,9 +112,7 @@ if uploaded_file is not None:
 
     img = transform(image).unsqueeze(0)
 
-    
     # PREDICTION
-
 
     with torch.no_grad():
 
@@ -123,7 +125,6 @@ if uploaded_file is not None:
 
 
     # TOP 3 PREDICTIONS
-
 
     top3_prob, top3_idx = torch.topk(probabilities, 3)
 
@@ -145,6 +146,7 @@ if uploaded_file is not None:
     df = pd.DataFrame(results)
 
     st.table(df)
+
 
     # PROBABILITY CHART
 
