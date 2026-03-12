@@ -192,14 +192,6 @@ https://img-classifier-efficientnet-llama4-scout.streamlit.app/
 
 ------------------------------------------------------------------------
 
-# Repository Structure
-
-indo-fashion-image-classification │ ├── train.py ├── dataset_cleaning.py
-├── utils.py ├── app.py ├── requirements.txt ├── README.md │ ├── models
-│ └── best_EfficientNet.pth │ ├── results │ ├── training_curves.png │
-├── confusion_matrix.png │ └── model_results.csv
-
-------------------------------------------------------------------------
 
 # Future Improvements
 
