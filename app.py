@@ -4,10 +4,10 @@ import torchvision
 from torchvision import transforms
 from PIL import Image
 import pandas as pd
-import os
+import base64
+from groq import Groq
 
 
-# PAGE CONFIG
 
 st.set_page_config(
     page_title="Indian Clothing Classifier",
@@ -18,12 +18,17 @@ st.set_page_config(
 st.title("Indian Clothing Image Classifier")
 
 st.write(
-"This app predicts the category of Indian clothing using a deep learning "
-"model trained on the IndoFashion dataset."
+"This app predicts the category of Indian clothing using either a "
+"deep learning model (EfficientNet) or a Vision LLM."
 )
 
 
-# CLASS LABELS
+
+model_choice = st.selectbox(
+    "Select Prediction Model",
+    ["EfficientNet (CNN)", "Llama Vision (LLM)"]
+)
+
 
 classes = [
 'BLOUSE',
@@ -46,7 +51,6 @@ classes = [
 device = torch.device("cpu")
 
 
-# IMAGE TRANSFORM
 
 transform = transforms.Compose([
     transforms.Resize((224,224)),
@@ -58,42 +62,29 @@ transform = transforms.Compose([
 ])
 
 
-# LOAD MODEL
-
 @st.cache_resource
 def load_model():
 
-    model_path = "Model/best_EfficientNet.pth"
+    model = torchvision.models.efficientnet_b0()
 
-    if not os.path.exists(model_path):
-        st.error("Model file not found. Please check the repository structure.")
-        st.stop()
+    model.classifier[1] = torch.nn.Linear(
+        model.classifier[1].in_features,
+        len(classes)
+    )
 
-    with st.spinner("Loading model..."):
-
-        model = torchvision.models.efficientnet_b0()
-
-        model.classifier[1] = torch.nn.Linear(
-            model.classifier[1].in_features,
-            len(classes)
+    model.load_state_dict(
+        torch.load(
+            "models/best_EfficientNet.pth",
+            map_location=device
         )
+    )
 
-        model.load_state_dict(
-            torch.load(
-                model_path,
-                map_location=device
-            )
-        )
-
-        model.eval()
+    model.eval()
 
     return model
 
 
-model = load_model()
 
-
-# IMAGE UPLOADER
 
 uploaded_file = st.file_uploader(
     "Upload an image of Indian clothing",
@@ -110,58 +101,169 @@ if uploaded_file is not None:
         use_column_width=True
     )
 
-    img = transform(image).unsqueeze(0)
+# ---------------------------------------------------
+# CNN PREDICTION
+# ---------------------------------------------------
 
-    # PREDICTION
+    if model_choice == "EfficientNet (CNN)":
 
-    with torch.no_grad():
+        model = load_model()
 
-        outputs = model(img)
+        img = transform(image).unsqueeze(0)
 
-        probabilities = torch.nn.functional.softmax(
-            outputs,
-            dim=1
-        )[0]
+        with torch.no_grad():
 
+            outputs = model(img)
 
-    # TOP 3 PREDICTIONS
+            probabilities = torch.nn.functional.softmax(
+                outputs,
+                dim=1
+            )[0]
 
-    top3_prob, top3_idx = torch.topk(probabilities, 3)
+        top3_prob, top3_idx = torch.topk(probabilities, 3)
 
-    st.subheader("Top Predictions")
+        st.subheader("Top Predictions")
 
-    results = []
+        results = []
 
-    for prob, idx in zip(top3_prob, top3_idx):
+        for prob, idx in zip(top3_prob, top3_idx):
 
-        label = classes[idx]
+            results.append({
+                "Class": classes[idx],
+                "Confidence (%)": round(prob.item()*100,2)
+            })
 
-        confidence = prob.item() * 100
+        df = pd.DataFrame(results)
 
-        results.append({
-            "Class": label,
-            "Confidence (%)": round(confidence,2)
+        st.table(df)
+
+        # probability chart
+
+        chart_data = pd.DataFrame({
+            "Class": classes,
+            "Probability": probabilities.numpy()
         })
 
-    df = pd.DataFrame(results)
+        chart_data = chart_data.sort_values(
+            "Probability",
+            ascending=False
+        )
 
-    st.table(df)
+        st.bar_chart(chart_data.set_index("Class"))
 
 
-    # PROBABILITY CHART
 
-    st.subheader("Prediction Probabilities")
+    if model_choice == "Llama Vision (LLM)":
 
-    chart_data = pd.DataFrame({
-        "Class": classes,
-        "Probability": probabilities.numpy()
-    })
+        st.info("Using Llama Vision model via Groq API")
 
-    chart_data = chart_data.sort_values(
-        "Probability",
-        ascending=False
-    )
+        encoded = base64.b64encode(
+            uploaded_file.read()
+        ).decode()
 
-    st.bar_chart(
-        chart_data.set_index("Class")
-    )
+        image_url = f"data:image/jpeg;base64,{encoded}"
+
+        client = Groq(
+            api_key=st.secrets["GROQ_API_KEY"]
+        )
+
+        prompt = """
+You are an expert fashion garment classifier.
+
+Your task is to classify the clothing item into EXACTLY ONE of the following categories:
+
+Kurta mens
+Women kurta
+Men Mojari
+Women Mojari
+Blouse
+Leggings
+Sherwani
+Dhothi Pants
+Saree
+Salwar
+Petticoat
+Palazzo
+Nehru Jacket
+Lehenga
+Gowns
+Dupatta
+
+Follow this reasoning process:
+
+Step 1: Identify garment location
+- upper body
+- lower body
+- full body
+- accessory
+
+Step 2: If it is a lower-body garment check structure
+
+Check if garment has TWO separate legs
+
+If YES → it is pants
+Possible classes:
+Palazzo
+Salwar
+Leggings
+Dhothi Pants
+
+If NO → skirt structure
+Possible classes:
+Petticoat
+Lehenga
+
+Step 3: Distinguish Palazzo vs Petticoat
+
+Palazzo:
+- wide loose pants
+- two legs
+- outer garment
+
+Petticoat:
+- single skirt
+- worn under saree
+- plain fabric
+
+Step 4: Distinguish Petticoat vs Lehenga
+
+Lehenga:
+- heavy embroidery
+- festive wear
+- wide flare
+
+Petticoat:
+- simple inner skirt
+- minimal decoration
+
+Return ONLY ONE label from the category list.
+Do NOT explain.
+"""
+
+        completion = client.chat.completions.create(
+
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+
+            messages=[
+                {
+                    "role":"user",
+                    "content":[
+                        {"type":"text","text":prompt},
+                        {
+                            "type":"image_url",
+                            "image_url":{"url":image_url}
+                        }
+                    ]
+                }
+            ],
+
+            temperature=0,
+            top_p=0.1,
+            max_completion_tokens=5
+        )
+
+        prediction = completion.choices[0].message.content.strip()
+
+        st.subheader("LLM Prediction")
+
+        st.success(prediction)
