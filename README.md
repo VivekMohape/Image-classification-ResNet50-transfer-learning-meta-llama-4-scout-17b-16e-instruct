@@ -1,6 +1,7 @@
-# Clothing Image Classification using transfer learning and LLM
+# Clothing Image Classification using Transfer Learning
 
-
+🔗 **Live Demo:**  
+https://img-classifier-efficientnet-llama4-scout.streamlit.app/
 
 This project implements an **image classification system for Indian ethnic clothing** using the **IndoFashion dataset**.
 
