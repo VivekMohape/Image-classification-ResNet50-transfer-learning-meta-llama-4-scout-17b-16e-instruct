@@ -6,6 +6,7 @@ from PIL import Image
 import pandas as pd
 import base64
 from groq import Groq
+import os
 
 
 
@@ -51,7 +52,6 @@ classes = [
 device = torch.device("cpu")
 
 
-
 transform = transforms.Compose([
     transforms.Resize((224,224)),
     transforms.ToTensor(),
@@ -62,8 +62,17 @@ transform = transforms.Compose([
 ])
 
 
+
+MODEL_PATH = os.path.join("Model", "best_EfficientNet.pth")
+
+
+
 @st.cache_resource
 def load_model():
+
+    if not os.path.exists(MODEL_PATH):
+        st.error("Model file not found. Please check repository structure.")
+        st.stop()
 
     model = torchvision.models.efficientnet_b0()
 
@@ -73,10 +82,7 @@ def load_model():
     )
 
     model.load_state_dict(
-        torch.load(
-            "models/best_EfficientNet.pth",
-            map_location=device
-        )
+        torch.load(MODEL_PATH, map_location=device)
     )
 
     model.eval()
@@ -101,9 +107,7 @@ if uploaded_file is not None:
         use_column_width=True
     )
 
-# ---------------------------------------------------
-# CNN PREDICTION
-# ---------------------------------------------------
+
 
     if model_choice == "EfficientNet (CNN)":
 
@@ -137,8 +141,6 @@ if uploaded_file is not None:
 
         st.table(df)
 
-        # probability chart
-
         chart_data = pd.DataFrame({
             "Class": classes,
             "Probability": probabilities.numpy()
@@ -150,7 +152,6 @@ if uploaded_file is not None:
         )
 
         st.bar_chart(chart_data.set_index("Class"))
-
 
 
     if model_choice == "Llama Vision (LLM)":
@@ -170,7 +171,7 @@ if uploaded_file is not None:
         prompt = """
 You are an expert fashion garment classifier.
 
-Your task is to classify the clothing item into EXACTLY ONE of the following categories:
+Classify the clothing item into ONE of the categories:
 
 Kurta mens
 Women kurta
@@ -189,55 +190,8 @@ Lehenga
 Gowns
 Dupatta
 
-Follow this reasoning process:
-
-Step 1: Identify garment location
-- upper body
-- lower body
-- full body
-- accessory
-
-Step 2: If it is a lower-body garment check structure
-
-Check if garment has TWO separate legs
-
-If YES → it is pants
-Possible classes:
-Palazzo
-Salwar
-Leggings
-Dhothi Pants
-
-If NO → skirt structure
-Possible classes:
-Petticoat
-Lehenga
-
-Step 3: Distinguish Palazzo vs Petticoat
-
-Palazzo:
-- wide loose pants
-- two legs
-- outer garment
-
-Petticoat:
-- single skirt
-- worn under saree
-- plain fabric
-
-Step 4: Distinguish Petticoat vs Lehenga
-
-Lehenga:
-- heavy embroidery
-- festive wear
-- wide flare
-
-Petticoat:
-- simple inner skirt
-- minimal decoration
-
-Return ONLY ONE label from the category list.
-Do NOT explain.
+Return ONLY one label.
+Do not explain.
 """
 
         completion = client.chat.completions.create(
