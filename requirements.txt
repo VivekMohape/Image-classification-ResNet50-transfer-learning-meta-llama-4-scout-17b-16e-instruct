@@ -1,9 +1,10 @@
 torch
 torchvision
+streamlit
+pillow
 numpy
 pandas
 scikit-learn
 matplotlib
 seaborn
-Pillow
-streamlit
+altair==4.2.2
