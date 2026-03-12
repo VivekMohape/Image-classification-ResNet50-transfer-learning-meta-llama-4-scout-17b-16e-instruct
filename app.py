@@ -22,6 +22,16 @@ st.write(
 "deep learning model (EfficientNet) or a Vision LLM."
 )
 
+st.markdown(
+"""
+### Test Images
+
+If you don't have an image, you can download sample test images here:
+
+🔗 https://drive.google.com/drive/folders/1Di0b2wPs-KbediLzKNYBkIQrrqfJ-81n?usp=sharing
+"""
+)
+
 
 model_choice = st.selectbox(
     "Select Prediction Model",
