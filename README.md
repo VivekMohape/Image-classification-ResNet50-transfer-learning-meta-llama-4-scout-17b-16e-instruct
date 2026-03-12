@@ -195,14 +195,19 @@ ResNet50 achieved slightly higher validation accuracy on this dataset.
 
 # Streamlit Demo
 
-This repository includes a **Streamlit application** that allows users to upload an image and obtain predictions from the trained model.
+A live interactive demo of the model is available here:
+
+🔗 **Live App:**  
+https://img-classifier-efficientnet-llama4-scout.streamlit.app/
+
+The Streamlit application allows users to upload an image and obtain predictions from the trained model.
 
 Features:
 
-* Upload clothing image
-* Display **Top-3 predicted classes**
-* Show prediction confidence
-* Visualize prediction probabilities
+- Upload clothing image
+- Display **Top-3 predicted classes**
+- Show prediction confidence
+- Visualize prediction probabilities
 
 
 
