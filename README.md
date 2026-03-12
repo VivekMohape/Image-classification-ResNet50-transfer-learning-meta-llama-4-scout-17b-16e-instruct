@@ -1,219 +1,284 @@
-# Clothing Image Classification using Transfer Learning and LLM
+Clothing Image Classification using Transfer Learning and LLM
 
-🔗 **Live Demo:**  
+🔗 Live Demo
 https://img-classifier-efficientnet-llama4-scout.streamlit.app/
 
-This project implements an **image classification system for Indian ethnic clothing** using the **IndoFashion dataset**.
+This project implements an image classification system for Indian ethnic clothing using the IndoFashion dataset.
 
-The objective is to train deep learning models that can automatically classify clothing items such as sarees, kurtas, lehengas, sherwanis, and other traditional Indian garments.
+The objective is to build a machine learning pipeline capable of automatically classifying clothing items such as sarees, kurtas, lehengas, sherwanis, and other traditional Indian garments.
 
-Since the original dataset is large, a **balanced subset dataset was created by selecting 500 valid images per class**, resulting in **7500 images across 15 categories**.
+Because the original dataset is large, a balanced subset dataset was created by selecting 500 valid images per class, resulting in 7500 images across 15 clothing categories.
 
-The models were implemented using **PyTorch** and trained using **transfer learning with pretrained convolutional neural networks**.
+The models were implemented using PyTorch and trained using transfer learning with pretrained convolutional neural networks.
 
-## Approach
+Project Approach
 
-The approach followed in this project includes the following steps:
+The overall approach follows a typical deep learning pipeline for computer vision tasks:
 
-1. Dataset cleaning and preprocessing to remove corrupt images.
-2. Creation of a balanced subset dataset with 500 images per class.
-3. Application of image preprocessing and augmentation techniques.
-4. Training deep learning models using transfer learning.
-5. Evaluating model performance using validation accuracy and confusion matrix.
-6. Comparing multiple architectures to determine the best performing model.
+Dataset Cleaning and Preparation
 
+Balanced Subset Dataset Creation
 
-Two architectures were evaluated:
+Image Preprocessing and Data Augmentation
 
-* ResNet50
-* EfficientNet-B0
+Model Training using Transfer Learning
 
----
+Model Evaluation and Performance Analysis
 
-# Dataset
+Model Comparison
 
-Dataset source:
+Interactive Deployment using Streamlit
+
+Two deep learning architectures were evaluated:
+
+ResNet50
+
+EfficientNet-B0
+
+The repository also includes an experimental LLM-based visual classifier using Llama Vision for comparison with deep learning approaches.
+
+Dataset
+
+Dataset Source:
 
 https://indofashion.github.io/
 
-The dataset contains **15 clothing categories**.
+The IndoFashion dataset contains images of various Indian ethnic clothing items collected from e-commerce platforms.
 
-For this project, a subset dataset was created to make training manageable.
+For this project, a smaller balanced dataset was created to ensure manageable training time.
 
-| Classes | Images per Class | Total Images |
-| ------- | ---------------- | ------------ |
-| 15      | 500              | 7500         |
+Classes	Images per Class	Total Images
+15	500	7500
 
-During preprocessing:
+Clothing categories include items such as:
 
-* Corrupt images were removed
-* Unsupported formats were filtered
-* Exactly **500 valid images per class** were selected
+Saree
 
-This ensures a **balanced dataset for training**.
+Lehenga
 
----
+Kurta
 
-# Data Preprocessing
+Sherwani
 
-Images were processed using PyTorch transforms.
+Mojari
 
-Preprocessing steps:
+Palazzo
 
-* Resize images to **224 × 224**
-* Random horizontal flipping
-* Random rotation (10°)
-* Convert to tensor
-* Normalize using **ImageNet mean and standard deviation**
+Dupatta
 
-These augmentations help improve model generalization.
+Blouse
 
----
+Leggings
 
-# Train / Validation Split
+Nehru Jacket
 
-The dataset was split into:
+Dataset Cleaning
 
-* **80% training data**
-* **20% validation data**
+Before training the models, the dataset was cleaned to ensure data quality.
 
-DataLoader objects were used for efficient mini-batch training.
+Cleaning steps included:
 
-Batch size:
+Removing corrupt images
 
-```
+Filtering unsupported image formats
+
+Validating images using the PIL image verification
+
+Randomly selecting 500 valid images per class
+
+This process ensures:
+
+Balanced dataset
+
+Stable model training
+
+Reduced bias between classes
+
+Data Preprocessing
+
+Images were preprocessed using PyTorch transforms.
+
+Preprocessing pipeline:
+
+Resize images to 224 × 224
+
+Random horizontal flipping
+
+Random rotation (±10°)
+
+Convert images to tensors
+
+Normalize using ImageNet mean and standard deviation
+
+Normalization values:
+
+mean = [0.485, 0.456, 0.406]
+std  = [0.229, 0.224, 0.225]
+
+These preprocessing steps help the model learn more robust visual representations.
+
+Train / Validation Split
+
+The dataset was split into training and validation sets.
+
+Split	Percentage
+Training	80%
+Validation	20%
+
+PyTorch DataLoader objects were used to efficiently load images in batches during training.
+
+Batch size used:
+
 32
-```
+Model Architecture
+ResNet50
 
----
+ResNet50 is a deep convolutional neural network architecture that introduces residual connections to solve the vanishing gradient problem.
 
-# Model Architectures
+Residual learning allows the model to learn transformations of the form:
 
-## ResNet50
+F(x) + x
 
-ResNet introduces **residual connections**, allowing deep neural networks to train effectively.
-
-Key concept:
-
-Residual connections help mitigate the **vanishing gradient problem**, enabling deeper architectures.
+This enables training of deeper networks without degradation.
 
 In this project:
 
-* ImageNet pretrained weights were used
-* Backbone layers were frozen
-* Only the **final classification layer** was trained
+ImageNet pretrained weights were used
 
----
+Backbone layers were frozen
 
-## EfficientNet-B0
+Only the final classification layer was retrained for the 15 clothing categories
 
-EfficientNet scales network depth, width, and resolution simultaneously using compound scaling.
+EfficientNet-B0
+
+EfficientNet is a modern CNN architecture that scales:
+
+network depth
+
+network width
+
+input resolution
+
+using compound scaling.
 
 Advantages:
 
-* Efficient architecture
-* Strong feature extraction
-* Fewer parameters compared to traditional CNNs
+Strong feature extraction
 
-Similarly, pretrained weights were used and only the classifier layer was trained.
+High accuracy with fewer parameters
 
----
+Efficient computation
 
-# Training Configuration
+Similar to ResNet50:
 
-| Parameter      | Value                                  |
-| -------------- | -------------------------------------- |
-| Optimizer      | Adam                                   |
-| Loss Function  | CrossEntropyLoss                       |
-| Batch Size     | 32                                     |
-| Epochs         | 15                                     |
-| Learning Rate  | 0.001 (ResNet) / 0.0005 (EfficientNet) |
-| Scheduler      | StepLR                                 |
-| Early Stopping | Patience = 3                           |
+pretrained ImageNet weights were used
 
-A learning rate scheduler gradually reduced the learning rate during training.
+backbone layers were frozen
 
-Early stopping prevented unnecessary training once validation loss stopped improving.
+the classifier layer was replaced with a 15-class output layer
 
----
+Training Process
 
-# Training Performance
+Both models were trained using transfer learning.
 
-## Validation Loss and Accuracy
+Training configuration:
 
-![Training Curves](results/training_curves.png)
+Parameter	Value
+Optimizer	Adam
+Loss Function	CrossEntropyLoss
+Batch Size	32
+Epochs	15
+Learning Rate	0.001 (ResNet)
+Learning Rate	0.0005 (EfficientNet)
+Scheduler	StepLR
+Early Stopping	Patience = 3
+Learning Rate Scheduler
+
+The StepLR scheduler gradually reduces the learning rate after fixed intervals to stabilize training.
+
+Early Stopping
+
+Training stops automatically if validation loss does not improve for several epochs, preventing overfitting.
+
+Training Performance
+
+The training curves illustrate the model learning behavior across epochs.
 
 Observations:
 
-* Both models show rapid improvement during early epochs.
-* ResNet50 achieves slightly **lower validation loss**.
-* Accuracy stabilizes after approximately **10–12 epochs**, indicating convergence.
+Both models improve rapidly in early epochs
 
----
+Training stabilizes after approximately 10–12 epochs
 
-# Confusion Matrix
+Validation loss plateaus indicating model convergence
 
-![Confusion Matrix](results/confusion_matrix.png)
+No major overfitting observed
 
-The confusion matrix shows how well the model distinguishes between clothing categories.
+Evaluation Metrics
 
-Each row represents the **true class**, while each column represents the **predicted class**.
+Model performance was evaluated using:
 
-### Key Observations
+Validation Accuracy
 
-**High Accuracy for Distinct Categories**
+Confusion Matrix
 
-The model performs well on clearly distinguishable clothing items such as:
+Training and Validation Loss Curves
 
-* BLOUSE
-* LEGGINGS
-* PALAZZO
-* SHERWANIS
-* LEHENGA
+Confusion Matrix
 
-**Confusion Between Similar Clothing**
+The confusion matrix visualizes how often each class is correctly predicted.
 
-Some classes show minor misclassification due to visual similarity:
+Key Observations
 
-* Kurta Mens vs Women Kurta
-* Women Mojari vs Mens Mojari
+High prediction accuracy for visually distinct categories:
 
-Most predictions appear along the **diagonal of the confusion matrix**, indicating correct classifications.
+BLOUSE
 
----
+LEGGINGS
 
-# Final Results
+PALAZZO
 
-| Model           | Validation Accuracy |
-| --------------- | ------------------- |
-| ResNet50        | **~86%**            |
-| EfficientNet-B0 | **~85%**            |
+SHERWANIS
 
-ResNet50 achieved slightly higher validation accuracy on this dataset.
+LEHENGA
 
----
+Some minor confusion exists between visually similar classes:
 
-# Streamlit Demo
+Kurta Mens vs Women Kurta
 
-A live interactive demo of the model is available here:
+Women Mojari vs Mens Mojari
 
-🔗 **Live App:**  
+Most predictions fall along the diagonal, indicating correct classification.
+
+Final Results
+Model	Validation Accuracy
+ResNet50	~86%
+EfficientNet-B0	~85%
+
+ResNet50 achieved slightly higher validation accuracy on the dataset.
+
+Streamlit Demo
+
+A live interactive demo is available.
+
+🔗 Live App
 https://img-classifier-efficientnet-llama4-scout.streamlit.app/
 
-The Streamlit application allows users to upload an image and obtain predictions from the trained model.
+The application allows users to upload clothing images and obtain predictions from the trained model.
 
-Features:
+Features include:
 
-- Upload clothing image
-- Display **Top-3 predicted classes**
-- Show prediction confidence
-- Visualize prediction probabilities
+Upload clothing images
 
+Display Top-3 predicted classes
 
+Show prediction confidence
 
-# Repository Structure
+Visualize prediction probabilities
 
-```
+Model selection (CNN vs LLM classifier)
+
+Repository Structure
 indo-fashion-image-classification
 │
 ├── train.py
@@ -230,17 +295,16 @@ indo-fashion-image-classification
 │   ├── training_curves.png
 │   ├── confusion_matrix.png
 │   └── model_results.csv
-```
+Future Improvements
 
----
+Possible improvements to increase model performance:
 
-# Potential Improvements
+Fine-tuning deeper layers of pretrained models
 
-Future improvements could further increase model performance:
+Using larger EfficientNet architectures
 
-* Fine-tuning deeper layers of pretrained networks
-* Applying stronger data augmentation
-* Using larger EfficientNet variants
-* Ensemble learning with multiple models
+Applying stronger data augmentation
 
+Training with larger dataset subsets
 
+Ensemble learning across multiple architectures
