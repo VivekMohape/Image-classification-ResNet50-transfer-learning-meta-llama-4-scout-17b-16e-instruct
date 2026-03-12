@@ -171,8 +171,7 @@ if uploaded_file is not None:
         prompt = """
 You are an expert fashion garment classifier.
 
-Classify the clothing item into ONE of the categories:
-
+Your task is to classify the clothing item into ONE of the categories below:
 Kurta mens
 Women kurta
 Men Mojari
@@ -190,7 +189,52 @@ Lehenga
 Gowns
 Dupatta
 
-Return ONLY one label.
+Follow this visual inspection process carefully:
+
+Step 1: Identify garment location
+- upper body
+- lower body
+- full body
+- accessory
+
+Step 2: If it is a lower-body garment check structure
+
+Check if garment has TWO separate legs
+- If yes → it is pants → likely Palazzo, Salwar, Leggings, or Dhothi Pants
+- If no → it is skirt style → likely Petticoat or Lehenga
+
+Step 3: Distinguish Palazzo vs Petticoat
+
+Palazzo:
+- wide loose pants
+- two separate legs
+- looks like a skirt but actually pants
+- waistband usually elastic
+- worn as outer garment
+
+Petticoat:
+- single skirt structure
+- NO separate legs
+- worn under saree
+- plain fabric
+- narrow waist with cone shape
+
+Step 4: Distinguish Petticoat vs Lehenga
+
+Lehenga:
+- heavy embroidery
+- bridal or festive
+- very wide flare
+
+Petticoat:
+- plain inner skirt
+- simple fabric
+
+Final rule:
+If garment has TWO legs → choose Palazzo
+If garment is SINGLE skirt with plain fabric → choose Petticoat
+
+Return ONLY ONE label from the category list.
 Do not explain.
 """
 
