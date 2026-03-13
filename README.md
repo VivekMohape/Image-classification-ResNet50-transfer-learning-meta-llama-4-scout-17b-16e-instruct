@@ -68,9 +68,9 @@ from e-commerce websites.
 
 For this project:
 
-  Classes        Images per Class        Total Images
+  Classes 15       Images per Class  500       Total Images  7500
   ---------      ------------------      --------------
-  15              500                     7500
+                                    
 
 Dataset cleaning steps:
 
