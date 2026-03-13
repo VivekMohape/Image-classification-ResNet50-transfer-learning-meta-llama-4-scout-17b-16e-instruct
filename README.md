@@ -37,7 +37,7 @@ The test folder contains example images from multiple categories such as:
 - Sherwani
 - Palazzo
 
-This allows quick verification of the classification system without downloading the full IndoFashion dataset.
+
 ------------------------------------------------------------------------
 
 # Project Overview
@@ -195,6 +195,17 @@ Observations:
 -   Minor confusion between visually similar classes:
     -   Kurta Mens vs Women Kurta
     -   Men Mojari vs Women Mojari
+
+------------------------------------------------------------------------
+# Model Comparison
+
+| Model | Validation Accuracy | Notes |
+|------|------|------|
+| ResNet50 | ~86% | Highest accuracy but large model |
+| EfficientNet-B0 | ~85% | More efficient architecture |
+| Llama Vision (LLM) | Prompt-based | Used for reasoning-based classification |
+
+Due to GitHub file size limitations, the ResNet model weights are not included in the repository.
 
 ------------------------------------------------------------------------
 
