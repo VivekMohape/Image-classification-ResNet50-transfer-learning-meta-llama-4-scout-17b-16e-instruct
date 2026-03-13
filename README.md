@@ -68,7 +68,7 @@ from e-commerce websites.
 
 For this project:
 
-  Classes 15       Images per Class  500       Total Images  7500
+  Classes: 15       Images per Class:  500       Total Images:  7500
   ---------      ------------------      --------------
                                     
 
